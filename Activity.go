@@ -14,7 +14,7 @@ import (
 
 // Activity describes a Garmin Connect activity.
 type Activity struct {
-	ID               int          `json:"activityId"`
+	ID               int64        `json:"activityId"`
 	ActivityName     string       `json:"activityName"`
 	Description      string       `json:"description"`
 	StartLocal       Time         `json:"startTimeLocal"`
@@ -26,11 +26,11 @@ type Activity struct {
 	MovingDuration   float64      `json:"movingDuration"`
 	AverageSpeed     float64      `json:"averageSpeed"`
 	MaxSpeed         float64      `json:"maxSpeed"`
-	OwnerID          int          `json:"ownerId"`
+	OwnerID          int32        `json:"ownerId"`
 	Calories         float64      `json:"calories"`
 	AverageHeartRate float64      `json:"averageHR"`
 	MaxHeartRate     float64      `json:"maxHR"`
-	DeviceID         int          `json:"deviceId"`
+	DeviceID         int64        `json:"deviceId"`
 }
 
 // ActivityType describes the type of activity.
@@ -42,7 +42,7 @@ type ActivityType struct {
 }
 
 // Activity will retrieve details about an activity.
-func (c *Client) Activity(activityID int) (*Activity, error) {
+func (c *Client) Activity(activityID int64) (*Activity, error) {
 	URL := fmt.Sprintf("https://connect.garmin.com/modern/proxy/activity-service/activity/%d",
 		activityID,
 	)
@@ -79,11 +79,11 @@ func (c *Client) Activities(displayName string, start int, limit int) ([]Activit
 }
 
 // RenameActivity can be used to rename an activity.
-func (c *Client) RenameActivity(activityID int, newName string) error {
+func (c *Client) RenameActivity(activityID int64, newName string) error {
 	URL := fmt.Sprintf("https://connect.garmin.com/modern/proxy/activity-service/activity/%d", activityID)
 
 	payload := struct {
-		ID   int    `json:"activityId"`
+		ID   int64  `json:"activityId"`
 		Name string `json:"activityName"`
 	}{activityID, newName}
 
@@ -91,7 +91,7 @@ func (c *Client) RenameActivity(activityID int, newName string) error {
 }
 
 // ExportActivity will export an activity from Connect. The activity will be written til w.
-func (c *Client) ExportActivity(id int, w io.Writer, format ActivityFormat) error {
+func (c *Client) ExportActivity(id int64, w io.Writer, format ActivityFormat) error {
 	formatTable := [activityFormatMax]string{
 		"https://connect.garmin.com/modern/proxy/download-service/files/activity/%d",
 		"https://connect.garmin.com/modern/proxy/download-service/export/tcx/activity/%d",
