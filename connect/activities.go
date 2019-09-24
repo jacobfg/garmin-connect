@@ -105,7 +105,7 @@ func activitiesList(_ *cobra.Command, args []string) {
 }
 
 func activitiesView(_ *cobra.Command, args []string) {
-	activityID, err := strconv.Atoi(args[0])
+	activityID, err := strconv.ParseInt(args[0], 10, 64)
 	bail(err)
 
 	activity, err := client.Activity(activityID)
@@ -118,7 +118,7 @@ func activitiesView(_ *cobra.Command, args []string) {
 }
 
 func activitiesViewWeather(_ *cobra.Command, args []string) {
-	activityID, err := strconv.Atoi(args[0])
+	activityID, err := strconv.ParseInt(args[0], 10, 64)
 	bail(err)
 
 	weather, err := client.ActivityWeather(activityID)
@@ -140,7 +140,7 @@ func activitiesExport(_ *cobra.Command, args []string) {
 	format, err := connect.FormatFromExtension(exportFormat)
 	bail(err)
 
-	activityID, err := strconv.Atoi(args[0])
+	activityID, err := strconv.ParseInt(args[0], 10, 64)
 	bail(err)
 
 	name := fmt.Sprintf("%d.%s", activityID, format.Extension())
@@ -175,7 +175,7 @@ func activitiesDelete(_ *cobra.Command, args []string) {
 }
 
 func activitiesRename(_ *cobra.Command, args []string) {
-	activityID, err := strconv.Atoi(args[0])
+	activityID, err := strconv.ParseInt(args[0], 10, 64)
 	bail(err)
 
 	newName := args[1]

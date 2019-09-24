@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	// "net/http/cookiejar"
 	"net/http/httputil"
 	"net/url"
 	"regexp"
@@ -105,8 +106,11 @@ func DumpWriter(w io.Writer) func(*Client) {
 // NewClient returns a new client for accessing the unofficial Garmin Connect
 // API.
 func NewClient(options ...func(*Client)) *Client {
+	// jar, _ := cookiejar.New(nil)
+
 	client := &Client{
 		client: &http.Client{
+			// Jar: jar,
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				return http.ErrUseLastResponse
 			},
@@ -347,7 +351,7 @@ func (c *Client) authenticated() bool {
 func (c *Client) Authenticate() error {
 	// We cannot use Client.do() in this function, since this function can be
 	// called from do() upon session renewal.
-	URL := "https://sso.garmin.com/sso/signin?service=https%3A%2F%2Fconnect.garmin.com%2Fmodern%2F&gauthHost=https%3A%2F%2Fsso.garmin.com%2Fsso"
+	URL := "https://sso.garmin.com/sso/signin?webhost=https%3A%2F%2Fconnect.garmin.com&locale=en_US&rememberMeShown=true&generateNoServiceTicket=false&id=gauth-widget&service=https%3A%2F%2Fconnect.garmin.com%2Fmodern%2F&connectLegalTerms=true&redirectAfterAccountCreationUrl=https%3A%2F%2Fconnect.garmin.com%2Fmodern%2F&displayNameShown=false&redirectAfterAccountLoginUrl=https%3A%2F%2Fconnect.garmin.com%2Fmodern%2F&source=https%3A%2F%2Fconnect.garmin.com%2Fen-US%2Fsignin&rememberMeChecked=false&generateExtraServiceTicket=true&openCreateAccount=false&showPassword=true&createAccountShown=true&embedWidget=false&initialFocus=true&gauthHost=https%3A%2F%2Fsso.garmin.com%2Fsso&globalOptInChecked=false&cssUrl=https%3A%2F%2Fstatic.garmincdn.com%2Fcom.garmin.connect%2Fui%2Fcss%2Fgauth-custom-v1.2-min.css&locationPromptShown=true&globalOptInShown=true&mobile=false&clientId=GarminConnect&generateTwoExtraServiceTickets=false&consumeServiceTicket=false"
 
 	if c.Email == "" || c.Password == "" {
 		return ErrNoCredentials
@@ -381,7 +385,8 @@ func (c *Client) Authenticate() error {
 		"username": {c.Email},
 		"password": {c.Password},
 		"embed":    {"false"},
-		"_csrf":    {csrfToken},
+		// "rememberme": {"on"},
+		"_csrf": {csrfToken},
 	}
 
 	req, err = http.NewRequest("POST", URL, strings.NewReader(formValues.Encode()))
@@ -390,6 +395,8 @@ func (c *Client) Authenticate() error {
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Origin", "https://sso.garmin.com")
+	// req.Header.Add("Referer", URL)
+	// req.Header.Add("Accept-Encoding", "identity")
 
 	c.dump(req)
 
@@ -417,6 +424,7 @@ func (c *Client) Authenticate() error {
 
 	// Use ticket to request session.
 	req, _ = c.newRequest("GET", ticketURL, nil)
+	// req.Header.Add("Accept-Encoding", "identity")
 	c.dump(req)
 	resp, err = c.client.Do(req)
 	if err != nil {
