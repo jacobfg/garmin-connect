@@ -18,7 +18,7 @@ type ActivityWeather struct {
 }
 
 // ActivityWeather returns the reported weather for an activity.
-func (c *Client) ActivityWeather(activityID int) (*ActivityWeather, error) {
+func (c *Client) ActivityWeather(activityID int64) (*ActivityWeather, error) {
 	URL := fmt.Sprintf("https://connect.garmin.com/modern/proxy/weather-service/weather/%d",
 		activityID,
 	)
